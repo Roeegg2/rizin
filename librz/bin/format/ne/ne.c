@@ -611,6 +611,7 @@ RzPVector /*<RzBinReloc *>*/ *rz_bin_ne_get_relocs(rz_bin_ne_obj_t *bin) {
 			}
 
 			if (rel.flags & ADDITIVE) {
+				reloc->name = "NE_UNDONE";
 				reloc->additive = 1;
 				rz_pvector_push(relocs, reloc);
 			} else {
