@@ -78,8 +78,6 @@ static void relocs_foreach(struct rz_bin_coff_obj *bin, RelocsForeachCb cb, void
 			}
 			RzBinReloc reloc = { 0 };
 
-			reloc.name = "COFF_UNDONE";
-			reloc.symbol = symbol;
 			reloc.paddr = bin->scn_hdrs[i].s_scnptr + rel[j].rz_vaddr;
 			if (bin->scn_va) {
 				reloc.vaddr = bin->scn_va[i] + rel[j].rz_vaddr;
@@ -101,11 +99,13 @@ static void relocs_foreach(struct rz_bin_coff_obj *bin, RelocsForeachCb cb, void
 				case COFF_FILE_MACHINE_I386:
 					switch (rel[j].rz_type) {
 					case COFF_REL_I386_DIR32:
+						reloc.name = "COFF_REL_I386_DIR32";
 						reloc.type = RZ_BIN_RELOC_32;
 						rz_write_le32(patch_buf, (ut32)sym_vaddr);
 						plen = 4;
 						break;
 					case COFF_REL_I386_REL32:
+						reloc.name = "COFF_REL_I386_REL32";
 						reloc.type = RZ_BIN_RELOC_32;
 						reloc.additive = 1;
 						ut32 data;
@@ -116,6 +116,9 @@ static void relocs_foreach(struct rz_bin_coff_obj *bin, RelocsForeachCb cb, void
 						data += sym_vaddr - reloc.vaddr - 4;
 						rz_write_le32(patch_buf, (st32)data);
 						plen = 4;
+						break;
+					default:
+						reloc.name = "COFF_UNKNOWN";
 						break;
 					}
 					break;
@@ -123,6 +126,7 @@ static void relocs_foreach(struct rz_bin_coff_obj *bin, RelocsForeachCb cb, void
 					switch (rel[j].rz_type) {
 					case COFF_REL_AMD64_REL32:
 						reloc.type = RZ_BIN_RELOC_32;
+						reloc.name = "COFF_REL_AMD64_REL32";
 						reloc.additive = 1;
 						ut32 data;
 						if (!rz_buf_read_le32_at(bin->b, reloc.paddr, &data)) {
@@ -133,12 +137,20 @@ static void relocs_foreach(struct rz_bin_coff_obj *bin, RelocsForeachCb cb, void
 						rz_write_le32(patch_buf, (st32)data);
 						plen = 4;
 						break;
+					default:
+						reloc.name = "COFF_UNKNOWN";
+						break;
 					}
 					break;
 				case COFF_FILE_MACHINE_ARMNT:
 					switch (rel[j].rz_type) {
 					case COFF_REL_ARM_BRANCH24T:
+						reloc.name = "COFF_REL_ARM_BRANCH24T";
+						__attribute__((fallthrough));
 					case COFF_REL_ARM_BLX23T:
+						if (reloc.name != NULL) { // if we didn't set it in the previous case
+							reloc.name = "COFF_REL_ARM_BLX23T";
+						}
 						reloc.type = RZ_BIN_RELOC_32;
 						ut16 hiword;
 						if (!rz_buf_read_le16_at(bin->b, reloc.paddr, &hiword)) {
@@ -158,11 +170,15 @@ static void relocs_foreach(struct rz_bin_coff_obj *bin, RelocsForeachCb cb, void
 						rz_write_le16(patch_buf + 2, loword);
 						plen = 4;
 						break;
+					default:
+						reloc.name = "COFF_UNKNOWN";
+						break;
 					}
 					break;
 				case COFF_FILE_MACHINE_ARM64:
 					switch (rel[j].rz_type) {
 					case COFF_REL_ARM64_BRANCH26:
+						reloc.name = "COFF_REL_ARM64_BRANCH26";
 						reloc.type = RZ_BIN_RELOC_32;
 						ut32 data;
 						if (!rz_buf_read_le32_at(bin->b, reloc.paddr, &data)) {
@@ -173,9 +189,16 @@ static void relocs_foreach(struct rz_bin_coff_obj *bin, RelocsForeachCb cb, void
 						rz_write_le32(patch_buf, data);
 						plen = 4;
 						break;
+					default:
+						reloc.name = "COFF_UNKNOWN";
+						break;
 					}
 					break;
 				}
+
+
+			} else {
+				reloc.name = "COFF_UNKNOWN";
 			}
 			cb(&reloc, plen ? patch_buf : NULL, plen, user);
 		}
