@@ -402,6 +402,7 @@ static RzPVector /*<RzBinReloc *>*/ *relocs(RzBinFile *bf) {
 		}
 		ptr->type = reloc->type;
 		ptr->additive = 0;
+		ptr->name = "MACH0_UNDONE";
 		if (reloc->name[0]) {
 			RzBinImport *imp;
 			if (!(imp = import_from_name(bf->rbin, (char *)reloc->name, bin->imports_by_name))) {

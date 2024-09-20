@@ -78,6 +78,7 @@ static void relocs_foreach(struct rz_bin_coff_obj *bin, RelocsForeachCb cb, void
 			}
 			RzBinReloc reloc = { 0 };
 
+			reloc.name = "COFF_UNDONE";
 			reloc.symbol = symbol;
 			reloc.paddr = bin->scn_hdrs[i].s_scnptr + rel[j].rz_vaddr;
 			if (bin->scn_va) {

@@ -474,6 +474,7 @@ static RzPVector /*<RzBinImport *>*/ *imports(RzBinFile *bf) {
 		rel->type = RZ_BIN_RELOC_32;
 #endif
 		rel->additive = 0;
+		rel->name = "PE_UNDONE";
 		rel->import = ptr;
 		rel->addend = 0;
 		{
