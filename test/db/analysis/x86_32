@@ -217,10 +217,8 @@ e asm.lines.bb=false
 e asm.lines.out=false
 e asm.bytes=false
 e asm.indentspace=0
-e asm.jmphints=false
 e asm.xrefs=false
 e asm.functions=false
-e asm.fcncalls=false
 e asm.lines.fcn=false
 e scr.utf8=false
 e analysis.jmp.after=false
@@ -228,7 +226,6 @@ e analysis.calls=false
 e analysis.jmp.cref=false
 e analysis.jmp.above=true
 e analysis.jmp.ref=true
-e analysis.split=true
 # HACK to avoid ASAN taking too long on travis.. this is broken anyway
 e analysis.bb.maxsize=1K
 adf @ sym.testObf27.exe_VirtMe
