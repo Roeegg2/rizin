@@ -672,6 +672,7 @@ typedef struct rz_bin_reloc_t {
 	 * an optimized version depending on the CPU.
 	 * cf. https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html
 	 */
+	const char *print_name;
 	bool is_ifunc;
 } RzBinReloc;
 

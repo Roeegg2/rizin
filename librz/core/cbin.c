@@ -1852,20 +1852,6 @@ RZ_API void rz_core_bin_print_source_line_info(RzCore *core, const RzBinSourceLi
 	rz_cmd_state_output_array_end(state);
 }
 
-static const char *bin_reloc_type_name(RzBinReloc *reloc) {
-#define CASE(T) \
-	case RZ_BIN_RELOC_##T: return reloc->additive ? "ADD_" #T : "SET_" #T
-	switch (reloc->type) {
-		CASE(8);
-		CASE(16);
-		CASE(24);
-		CASE(32);
-		CASE(64);
-	}
-	return "UNKNOWN";
-#undef CASE
-}
-
 static bool entries_initfini_print(RzCore *core, RzBinFile *bf, RzCmdStateOutput *state, bool initfini) {
 	RzBinObject *o = bf->o;
 	const RzPVector *entries = rz_bin_object_get_entries(o);
@@ -2290,7 +2276,7 @@ RZ_API bool rz_core_bin_relocs_print(RZ_NONNULL RzCore *core, RZ_NONNULL RzBinFi
 			} else if (reloc->symbol && RZ_STR_ISNOTEMPTY(reloc->symbol->dname)) {
 				pj_ks(state->d.pj, "demangled", reloc->symbol->dname);
 			}
-			pj_ks(state->d.pj, "type", bin_reloc_type_name(reloc));
+			pj_ks(state->d.pj, "type", reloc->print_name);
 			pj_kn(state->d.pj, "vaddr", reloc->vaddr);
 			pj_kn(state->d.pj, "paddr", reloc->paddr);
 			if (rz_bin_reloc_has_target(reloc)) {
@@ -2321,10 +2307,10 @@ RZ_API bool rz_core_bin_relocs_print(RZ_NONNULL RzCore *core, RZ_NONNULL RzBinFi
 			char *res = rz_strbuf_drain(buf);
 			if (have_targets) {
 				rz_table_add_rowf(state->d.t, "XXXss", addr, reloc->paddr, reloc->target_vaddr,
-					bin_reloc_type_name(reloc), res);
+					reloc->print_name, res);
 			} else {
 				rz_table_add_rowf(state->d.t, "XXss", addr, reloc->paddr,
-					bin_reloc_type_name(reloc), res);
+					reloc->print_name, res);
 			}
 			free(res);
 			break;
